@@ -2,143 +2,104 @@
 #include <stdlib.h>
 #include <time.h>
 
-int main(void)
-
-{
-
-	setvbuf(stdin, NULL, _IONBF, 0);
-
-	setvbuf(stdout, NULL, _IONBF, 0);
-
-	int i = 0, j = 0, r, min = -100, max = 100;
-
-	int elem_c, m = 100, n = 100;
-
-
-	int** mas = (int**)malloc(sizeof(int*) * n);
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		mas[i] = (int*)malloc(sizeof(int) * m);
-
-	}
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		for (int j = 0; j < m; j++)
-
-		{
-
-			mas[i][j] = min + rand() % (max - min + 1);
-
-			//printf("%d ",mas[i][j]);
-
-		}
-
-	}
-
-	int** mass = (int**)malloc(sizeof(int*) * n);
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		mass[i] = (int*)malloc(sizeof(int) * m);
-
-	}
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		for (int j = 0; j < m; j++)
-
-		{
-
-			mass[i][j] = min + rand() % (max - min + 1);
-
-			//printf("%d ",mas[i][j]);
-
-		}
-
-	}
-
-	int** c = (int**)malloc(sizeof(int*) * n);
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		c[i] = (int*)malloc(sizeof(int) * m);
-
-	}
-
-
-	for (int i = 0; i < n; i++)
-
-	{
-
-		for (int j = 0; j < m; j++)
-
-		{
-
-			c[i][j] = min + rand() % (max - min + 1);
-
-			//printf("%d ",mas[i][j]);
-
-		}
-
-	}
-
-	clock_t starttime;
-
-	starttime = clock();
-
-	for (i = 0; i < n; i++)
-
-	{
-
-		for (j = 0; j < n; j++)
-
-		{
-
-			elem_c = 0;
-
-			for (r = 0; r < n; r++)
-
-			{
-
-				elem_c = elem_c + mas[i][r] * mass[r][j];
-
-				mass[i][j] = elem_c;
-
-			}
-
-		}
-
-	}
-
-
-
-	float t = (float)(clock() - starttime) / (float)CLOCKS_PER_SEC;
-
-	printf("%f", t);
-
-	getchar();
-
-	getchar();
-
-	getchar();
-
-	return(0);
-
+void shell(int* items, int count) {
+    int i, j, gap, k;
+    int x, a[5] = {9, 5, 3, 2, 1};
+
+    for (k = 0; k < 5; k++) {
+        gap = a[k];
+        for (i = gap; i < count; ++i) {
+            x = items[i];
+            for (j = i - gap; j >= 0 && items[j] > x; j -= gap) {
+                items[j + gap] = items[j];
+            }
+            items[j + gap] = x;
+        }
+    }
+}
+
+void qs(int* items, int left, int right) {
+    int i = left, j = right;
+    int x = items[(left + right) / 2];
+    int y;
+
+    do {
+        while (items[i] < x) i++;
+        while (items[j] > x) j--;
+
+        if (i <= j) {
+            y = items[i];
+            items[i] = items[j];
+            items[j] = y;
+            i++;
+            j--;
+        }
+    } while (i <= j);
+
+    if (left < j) qs(items, left, j);
+    if (i < right) qs(items, i, right);
+}
+
+int main() {
+    srand(time(NULL));
+    clock_t starttime, endtime;
+    int i = 0, max = 100, min = -100, c = 10000;
+    int mas1[10000], mas2[10000], mas3[10000], mas4[10000];
+
+    for (i = 0; i < c; i++) {
+        mas1[i] = min + rand() % (max - min + 1);
+        mas2[i] = i;
+        mas3[i] = c - i;
+        mas4[i] = (i <= c / 2) ? i : c - i;
+    }
+
+    starttime = clock();
+    shell(mas1, c);
+    endtime = clock();
+    printf("shell1: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    for (i = 0; i < c; i++) {
+        mas1[i] = min + rand() % (max - min + 1);
+    }
+
+    starttime = clock();
+    qs(mas1, 0, c - 1);
+    endtime = clock();
+    printf("qs1: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    starttime = clock();
+    shell(mas2, c);
+    endtime = clock();
+    printf("shell2: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    starttime = clock();
+    qs(mas2, 0, c - 1);
+    endtime = clock();
+    printf("qs2: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    starttime = clock();
+    shell(mas3, c);
+    endtime = clock();
+    printf("shell3: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    starttime = clock();
+    qs(mas3, 0, c - 1);
+    endtime = clock();
+    printf("qs3: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    starttime = clock();
+    shell(mas4, c);
+    endtime = clock();
+    printf("shell4: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    for (i = 0; i < c; i++) {
+        mas4[i] = (i <= c / 2) ? i : c - i;
+    }
+
+    starttime = clock();
+    qs(mas4, 0, c - 1);
+    endtime = clock();
+    printf("qs4: %f\n", (float)(endtime - starttime) / CLOCKS_PER_SEC);
+
+    return 0;
 }
